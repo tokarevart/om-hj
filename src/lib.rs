@@ -43,21 +43,21 @@ macro_rules! make_search_fn {
             }
 
             fn pattern_move(
-                x: &mut $argtype, nextx: &mut $argtype, 
+                x: &mut $argtype, mut nextx: $argtype, 
                 per: f64, f: impl Fn($argtype) -> f64
             ) {
                 loop {
-                    let mut farx = 2.0 * *nextx - *x;
+                    let mut farx = 2.0 * nextx - *x;
                     if let Some(nextfarx) = explore_around(farx, per, |x| f(x)) {
                         farx = nextfarx;
                     }
             
                     if f(farx) > f(*x) {
-                        *x = *nextx;
+                        *x = nextx;
                         break;
                     } else {
-                        *x = *nextx;
-                        *nextx = farx;
+                        *x = nextx;
+                        nextx = farx;
                     }
                 }
             }
@@ -65,9 +65,9 @@ macro_rules! make_search_fn {
             let mut x = init_arg;
             let mut per = init_per;
             while per > eps {
-                if let Some(mut nextx) = explore_around(x, per, |x| f(x)) {
+                if let Some(nextx) = explore_around(x, per, |x| f(x)) {
                     per = init_per;
-                    pattern_move(&mut x, &mut nextx, per, |x| f(x));
+                    pattern_move(&mut x, nextx, per, |x| f(x));
                 } else {
                     per *= 0.5;
                 }
