@@ -26,6 +26,7 @@ macro_rules! make_search_fn {
                         continue;
                     } else {
                         nextx[i] -= 2.0 * per;
+                        let fnext = f(nextx);
                         if fnext < fbest {
                             fbest = fnext;
                             changed = true;
@@ -52,7 +53,7 @@ macro_rules! make_search_fn {
                         farx = nextfarx;
                     }
             
-                    if f(farx) > f(*x) {
+                    if f(farx) >= f(*x) {
                         *x = nextx;
                         break;
                     } else {
