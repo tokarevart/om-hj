@@ -123,7 +123,7 @@ macro_rules! make_search_with_penalty_fn {
         pub fn $name(
             init_arg: $argtype, init_per: f64, eps: f64, 
             f: impl Fn($argtype, f64) -> f64,
-            penalty: impl Fn(usize) -> f64,
+            coef: impl Fn(usize) -> f64,
         ) -> $argtype {
         
             assert!(init_per > 0.0 && eps > 0.0);
@@ -135,9 +135,9 @@ macro_rules! make_search_with_penalty_fn {
             let mut per = init_per;
             let mut count = 1;
             while per > eps {
-                if let Some(nextx) = explore_around(x, per, |x| f(x, penalty(count))) {
+                if let Some(nextx) = explore_around(x, per, |x| f(x, coef(count))) {
                     per = init_per;
-                    pattern_move(&mut x, nextx, per, |x| f(x, penalty(count)));
+                    pattern_move(&mut x, nextx, per, |x| f(x, coef(count)));
                 } else {
                     per *= 0.5;
                 }
