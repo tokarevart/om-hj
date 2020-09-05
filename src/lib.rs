@@ -149,9 +149,42 @@ macro_rules! make_search_with_penalty_fn {
     };
 }
 
+macro_rules! make_search_with_penalty_and_n_fn {
+    ($name:ident, $argtype:ty) => {
+        pub fn $name(
+            init_arg: $argtype, init_per: f64, n: usize, 
+            f: impl Fn($argtype, f64) -> f64,
+            coef: impl Fn(usize) -> f64,
+        ) -> $argtype {
+        
+            assert!(init_per > 0.0 && n > 0);
+
+            make_explore_around!($argtype);
+            make_pattern_move!($argtype);
+        
+            let mut x = init_arg;
+            let mut per = init_per;
+            for i in 0..n {
+                if let Some(nextx) = explore_around(x, per, |x| f(x, coef(i + 1))) {
+                    per = init_per;
+                    pattern_move(&mut x, nextx, per, |x| f(x, coef(i + 1)));
+                } else {
+                    per *= 0.5;
+                }
+            }
+            
+            x
+        }
+    };
+}
+
+
+
 make_search_fn!(search_2d, na::Vector2<f64>);
 make_search_fn!(search_3d, na::Vector3<f64>);
 make_search_with_n_fn!(search_with_n_2d, na::Vector2<f64>);
 make_search_with_n_fn!(search_with_n_3d, na::Vector3<f64>);
 make_search_with_penalty_fn!(search_with_penalty_2d, na::Vector2<f64>);
 make_search_with_penalty_fn!(search_with_penalty_3d, na::Vector3<f64>);
+make_search_with_penalty_and_n_fn!(search_with_penalty_and_n_2d, na::Vector2<f64>);
+make_search_with_penalty_and_n_fn!(search_with_penalty_and_n_3d, na::Vector3<f64>);
